@@ -1,24 +1,40 @@
 <html>
 	<head>
-		<script>
-			//A simple cross-browser implementation of log for modern browsers
-			//See http://patik.com/blog/complete-cross-browser-console-log/
-			//for a more complete version [SJSN]
-			function log(){
-				try{
-					console.log.apply(console, arguments);
-				} catch(e){
-					try{
-						opera.postError.apply(opera, arguments);
-					} catch(e){
-						alert(Array.prototype.join.call(arguments, " "));
-					}
-				}
+		<title>Test Suite</title>
+		<script type="text/javascript" src="log.js"></script>
+		<script type="text/javascript">
+
+			//Simple assert function
+			function assert(value, desc){
+				var li = document.createElement("li");
+				li.className = value ? "pass" : "fail";
+				li.appendChild(document.createTextNode(desc));
+				document.getElementById("results").appendChild(li);
 			};
 
 			window.onload = function(){
-				log("Hello, World!");
+				//Here we use it in the simple case with straight boolean values
+				//but it could just as well be provided the result of functions
+
+				assert(true, "Test suite running");
+				assert(false, "So much fail!");
 			};
+
 		</script>
+
+		<style>
+			#results li.pass{
+				color: green;
+			}
+
+			#results li.fail{
+				color: red;
+			}
+		</style>
+
 	</head>
+
+	<body>
+		<ul id="results"></ul>
+	</body>
 </html>
