@@ -5,50 +5,73 @@
 		<script type="text/javascript">
 
 			(function(){
+			 	//An asynchronus test runner implementation
+			 	var queue = [];
+				var paused = false;
 			 	var results;
-				//A thought to ponder, what is "this" in this function context?
+
+				this.test = function(name, fn){
+					queue.push(function(){
+						results = document.getElementById("results");
+						results = assert(true, name).appendChild(
+							document.createElement("ul")
+						);
+						fn();
+					});
+					runTest();
+				};
+
+				this.pause = function(){
+					paused = true;
+				};
+
+				this.resume = function(){
+					paused = false;
+					//Here setTimeout is used to ensure runTest occurs
+					//after any other previous long running block of JS.
+					//This will be covered in greater depth in later chapters
+					setTimeout(runTest, 1);
+				};
+
+				function runTest(){
+					if(!paused && queue.length){
+						//Here its important to recall that our queue is loaded
+						//with functions and () is the function invocation operator
+						queue.shift()();
+						if(!paused){
+							resume();
+						}
+					}
+				};
+
 				this.assert = function(value, desc){
 					var li = document.createElement("li");
 					li.className = value ? "pass" : "fail";
 					li.appendChild(document.createTextNode(desc));
 					results.appendChild(li);
 					if(!value){
-						//Any single failure will fail the overall test suite
 						li.parentNode.parentNode.className = "fail";
 					}
 					return li;
 				};
-
-				this.test = function(name, fn){
-					results = document.getElementById("results");
-					//Here we create a parent assertion that represents the test
-					//group. At this point the results variable is now occupied
-					//by the sub ul DOM element and all assertions in the test will
-					//be appended there
-					results = assert(true, name).appendChild(
-						document.createElement("ul")
-					);
-					fn();
-				};
 			})();
 
 			window.onload = function(){
-				test("A test.", function(){
-					assert(true, "First assertion completed!");
-					assert(true, "Second assertion completed!");
-					assert(true, "Third assertion completed!");
+				test("Async test 1", function(){
+					//Halt execution at the beginning of the async suite
+					pause();
+					setTimeout(function(){
+						assert(true, "First test completed");
+						//Only start again at the return of the async test
+						resume();
+					}, 1000);
 				});
-
-				test("Another test.", function(){
-					assert(true, "First assertion completed!");
-					assert(false, "Second assertion failed! Now the suite fails!");
-					assert(true, "Third assertion completed!");
-				});
-				
-				test("A third test.", function(){
-					//Testing JS "truthiness"
-					assert(null, "Fail");
-					assert(5, "Pass!");
+				test("Async test 2", function(){
+					pause();
+					setTimeout(function(){
+						assert(true, "Second test completed");
+						resume();
+					}, 1000);
 				});
 			};
 
