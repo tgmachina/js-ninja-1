@@ -1,0 +1,24 @@
+<html>
+	<head>
+		<script>
+			//A simple cross-browser implementation of log for modern browsers
+			//See http://patik.com/blog/complete-cross-browser-console-log/
+			//for a more complete version [SJSN]
+			function log(){
+				try{
+					console.log.apply(console, arguments);
+				} catch(e){
+					try{
+						opera.postError.apply(opera, arguments);
+					} catch(e){
+						alert(Array.prototype.join.call(arguments, " "));
+					}
+				}
+			};
+
+			window.onload = function(){
+				log("Hello, World!");
+			};
+		</script>
+	</head>
+</html>
